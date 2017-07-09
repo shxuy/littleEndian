@@ -24,4 +24,5 @@ Firstly, you should put the latest nasm and littleEndian.s in the same file. For
 Secondly, using commands:  
 ```bash
 ./nasm -f macho64 -o _temp.o littleEndian.s
-ld -e _main -o littleEndian _temp.o```
+ld -e _main -o littleEndian _temp.o
+```
