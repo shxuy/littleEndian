@@ -20,9 +20,13 @@ Linker: ld in LLVM 8.1.0
 File: littleEndian.s  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compile.sh (optional)  
 The version of nasm installed by Apple Inc. is 0.98.40 on Mac OS Sierra(10.12.1) while the latest version of nasm is 2.13.01 on Jul.8th, 2017. The nasm brought by Apple Inc. are not able to compile 64-bit file so it lags behind the current environment. I'm afraid that nasm 0.98.40 is still useful to Mac OS and replacing nasm 0.98.40 by 2.13.01 may lead to unknown error, so I prefer putting the latest nasm in the same path of asm file and using "./nasm" instead of "nasm".  
-Firstly, you should put the latest nasm and littleEndian.s in the same file. For example, put them on the desktop.  
-Secondly, using commands:  
+Firstly, you should put the latest nasm and littleEndian.s in the same file, like /Users.  
+Secondly, use commands:  
 ```bash
 ./nasm -f macho64 -o _temp.o littleEndian.s
 ld -e _main -o littleEndian _temp.o
-```
+```. 
+Or you can put the latest nasm, littleEndian.s and compile.sh in the same file, then execute compile.sh, like this
+```bash
+./compile.sh
+```. 
