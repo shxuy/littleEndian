@@ -25,8 +25,8 @@ Secondly, use commands:  
 ```bash
 ./nasm -f macho64 -o _temp.o littleEndian.s
 ld -e _main -o littleEndian _temp.o
-```. 
+```
 Or you can put the latest nasm, littleEndian.s and compile.sh in the same file, then execute compile.sh, like this
 ```bash
 ./compile.sh
-```. 
+```
