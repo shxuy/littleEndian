@@ -10,9 +10,9 @@ hexHead: db "0x"
 colon: db ": "
 chline: db 0x0a ;换行符
 msg0: db "The original 64-bit integer:", 0x0a
-len0: EQU $-msg0
+len0: EQU $ - msg0
 msg1: db "Values in the memory:", 0x0a
-len1: EQU $-msg1
+len1: EQU $ - msg1
 
 LongLong: dd 0x0, 0x0, 0x0, 0x0 ;数字转换为字符串时的临时内存区域，用于存放输入的数字（即子过程的参量）
 HexString: dd 0x0, 0x0, 0x0, 0x0 ;数字转换为字符串时，用于存放输出的十六进制数字符串（不含字符串结尾‘\0’，且不含‘0x’开头）
@@ -25,7 +25,7 @@ global _main
     ;将16位十六进制数字（64位二进制数字）转化为Acsii编码字符串（不含字符串结尾和‘0x’开头）
     ;输入：rdi(存放数值), rsi(值为0，则十六进制中A, B, C, D, E, F使用大写字母，否则使用小写字母a, b, c, d, e, f)
     ;输出：字符串保存在HexString，同时rax中保存 HexString 的地址
-    ;因为本子过程使用了寄存器rsi和cx，所以调用本子过程前需要保存寄存器rsi和rcx（如果调用前寄存器rsi或rcx里的值有用的话）
+    ;因为本子过程使用了寄存器rsi和rcx，所以调用本子过程前需要保存寄存器rsi和rcx（如果调用前寄存器rsi或rcx里的值有用的话）
     ;复制这个子过程的时候要记得带上.data段的 LongLong 和 HexString
 longLongToChar:
     push rbp ;保护现场，分配栈帧，保存了rbp, rbx, r10
@@ -41,7 +41,7 @@ longLongToChar:
 
     mov r10, rsi ;rsi本身是子过程的第二个参数，标志十六进制数是否使用大写字母。然而下一句话要用到寄存器rsi，所以把rsi中的值转移到r10中。之后确定十六进制数使用大写字母还是小写字母的时候，使用r10中的值而非rsi中的值
     mov rsi, 0 ;与寄存器rbx配合的偏移量，用于一字节一字节地依次读取输入数据 LongLong 中的内容
-    mov cx, 8 ;cx是计数寄存器，这句话说明Ls将循环8次（64位／每次取8位 = 8次）
+    mov rcx, 8 ;rcx是计数寄存器，这句话说明Ls将循环8次（64位／每次取8位 = 8次）
 Ls: mov al, [rbx + rsi] ;取 LongLong 中的某一字节
     mov ah, al ;把这一字节的值复制一份，al用于读取这一字节的低4位，ah用于读取这一字节的高4位
     and al, 00001111b ;用掩码取最低4位
