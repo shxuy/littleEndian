@@ -14,7 +14,7 @@ len0: EQU $ - msg0
 msg1: db "Values in the memory:", 0x0a
 len1: EQU $ - msg1
 
-LongLong: dd 0x0, 0x0, 0x0, 0x0 ;数字转换为字符串时的临时内存区域，用于存放输入的数字（即子过程的参量）
+UnsignedLongLong: dd 0x0, 0x0, 0x0, 0x0 ;数字转换为字符串时的临时内存区域，用于存放输入的数字（即子过程的参量）
 HexString: dd 0x0, 0x0, 0x0, 0x0 ;数字转换为字符串时，用于存放输出的十六进制数字符串（不含字符串结尾‘\0’，且不含‘0x’开头）
 
 HexCharChar: dd 0x0 ;一字节中储存的数字转换为字符串时，用于存放输出的两个十六进制数字符（不含字符串结尾‘\0’，且不含‘0x’开头）
@@ -22,20 +22,20 @@ HexCharChar: dd 0x0 ;一字节中储存的数字转换为字符串时，用于�
 SECTION .text
 global _main
 
-    ;将16位十六进制数字（64位二进制数字）转化为Acsii编码字符串（不含字符串结尾和‘0x’开头）
+    ;将16位十六进制无符号数字（64位无符号二进制数字）转化为Acsii编码字符串（不含字符串结尾和‘0x’开头）
     ;输入：rdi(存放数值), rsi(值为0，则十六进制中A, B, C, D, E, F使用大写字母，否则使用小写字母a, b, c, d, e, f)
     ;输出：字符串保存在HexString，同时rax中保存 HexString 的地址
     ;因为本子过程使用了寄存器rsi和rcx，所以调用本子过程前需要保存寄存器rsi和rcx（如果调用前寄存器rsi或rcx里的值有用的话）
-    ;复制这个子过程的时候要记得带上.data段的 LongLong 和 HexString
-longLongToChar:
+    ;复制这个子过程的时候要记得带上.data段的 UnsignedLongLong 和 HexString
+unsignedLongLongToString:
     push rbp ;保护现场，分配栈帧，保存了rbp, rbx, r10
     mov rbp, rsp
     sub rsp, 16
     mov [rsp], rbx
     mov [rsp + 8], r10
 
-    mov rbx, LongLong
-    mov [rbx], rdi ;把寄存器rdi里的值存入LongLong
+    mov rbx, UnsignedLongLong
+    mov [rbx], rdi ;把寄存器rdi里的值存入UnsignedLongLong
     mov rbp, HexString
     add rbp, 15 ;让寄存器rbp内的值指向字符串HexString的最后一位，也就是十六进制字符串中的个位数。
 
@@ -90,7 +90,7 @@ printAddress:
     call print0x ;在屏幕上打印"0x"
     mov rdi, [rsp] ;还原rdi内的值，为调用longLongToChar做准备
     mov rsi, [rsp + 8] ;还原rsi内的值，为调用longLongToChar做准备
-    call longLongToChar
+    call unsignedLongLongToString
     mov rax, 0x2000004
     mov rdi, 1
     mov rsi, HexString + 4 ;x86-64 CPU只有48根地址线，用48／4=12位十六进制数表示就足够了。所以地址用16位十六进制数字（64位二进制数字）表示的话，最高4位永远是0x0000,没有意义，所以干脆就不打印这4个零
@@ -101,11 +101,11 @@ printAddress:
     pop rbp
     ret
 
-;将一字节中储存的数字转化为两个十六进制的Acsii编码字符（不含字符串结尾和‘0x’开头）
+;将一字节中储存的无符号数字转化为两个十六进制的Acsii编码字符（不含字符串结尾和‘0x’开头）
 ;输入：dl(存放数值), rsi(值为0，则十六进制中A, B, C, D, E, F使用大写字母，否则使用小写字母a, b, c, d, e, f)
 ;输出：字符串保存在HexCharChar，同时rax中保存 HexCharChar 的地址
 ;复制这个子过程的时候要记得带上.data段的 HexCharChar
-ByteToChar:
+unsignedCharToString:
     push rbp ;保护现场，分配栈帧，保存了rbp, rbx
     mov rbp, rsp
 
@@ -189,7 +189,7 @@ _main:
     call print0x ;在屏幕上打印这个64-bit数
     mov rdi, [rsp]
     xor rsi, rsi ;把rsi设为0，使得转换十六进制数时使用大写字母
-    call longLongToChar
+    call unsignedLongLongToString
     mov rax, 0x2000004
     mov rdi, 1
     mov rsi, HexString
@@ -220,7 +220,7 @@ Lp: mov [rsp + 8], rcx ;保存rcx的值，因为过会儿printAddress会改变rc
     mov rsi, [rsp + 16] ;还原rsi的值
     mov dl, [rbx + rsi] ;只传一个字节中的值
     xor rsi, rsi ;把rsi设为0，使得转换十六进制数时使用大写字母
-    call ByteToChar
+    call unsignedCharToString
     mov rax, 0x2000004
     mov rdi, 1
     mov rsi, HexCharChar
